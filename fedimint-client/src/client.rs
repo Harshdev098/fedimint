@@ -149,14 +149,13 @@ pub struct Client {
 
 #[derive(Serialize, Deserialize)]
 pub struct FederationPreview {
-    config: ClientConfig,
-    federation_id: String,
-    endpoint_url: SafeUrl,
+    config: JsonClientConfig,
+    federation_id: FederationId,
 }
 
 #[derive(Deserialize)]
 struct PreviewFederationRequest {
-    invite_code: String,
+    invite_code: InviteCode,
 }
 
 impl Client {
@@ -244,16 +243,14 @@ impl Client {
         })
     }
 
-    pub async fn preview_federation(&self, invite_code: &str) -> anyhow::Result<FederationPreview> {
-        let invite = InviteCode::decode_base32(invite_code)?;
-        let config = self.connector.download_from_invite_code(&invite).await?;
-        let federation_id = config.calculate_federation_id().to_string();
-        let endpoint_url = invite.url();
+    pub async fn preview_federation(&self, invite: &InviteCode) -> anyhow::Result<FederationPreview> {
+        let config = self.connector.download_from_invite_code(invite).await?;
+        let json_config = config.to_json();
+        let federation_id = config.calculate_federation_id();
         
         Ok(FederationPreview {
-            config,
+            config: json_config,
             federation_id,
-            endpoint_url,
         })
     }
 
