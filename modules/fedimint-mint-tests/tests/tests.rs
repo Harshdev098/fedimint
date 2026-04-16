@@ -775,9 +775,8 @@ async fn spend_exact() -> anyhow::Result<()> {
     let fed = fixtures().new_fed_degraded().await;
     let client = fed.new_client().await;
     let client_dummy_module = client.get_first_module::<DummyClientModule>()?;
-    let (op, outpoint) = client_dummy_module.print_money(sats(1000)).await?;
-    client
-        .await_primary_bitcoin_module_output(op, outpoint)
+    client_dummy_module
+        .mock_receive(sats(1000), AmountUnit::BITCOIN)
         .await?;
 
     // The wallet won't have any denomination more than 3 times at this point, so if
@@ -786,14 +785,21 @@ async fn spend_exact() -> anyhow::Result<()> {
 
     for _ in 0..10 {
         let operation_id = client_mint
-            .spend_notes_with_exact_denominations(TieredCounts::from_iter(vec![(msats(8), 1)]), ())
+            .spend_notes_with_exact_denominations(
+                TieredCounts::from_iter(vec![(msats(8), 1)]),
+                Duration::from_secs(60),
+                (),
+            )
             .await?;
-        let outcome = client_mint
+
+        let mut stream = client_mint
             .subscribe_spend_notes_with_exact_denominations(operation_id)
             .await?
-            .await_outcome()
-            .await;
-        let Some(SpendExactState::Success(notes)) = outcome else {
+            .into_stream();
+
+        let outcome = stream.next_or_pending().await;
+
+        let SpendExactState::Success(notes) = outcome else {
             panic!("Expected success, got: {outcome:?}");
         };
         assert_eq!(notes.total_amount(), msats(8));
