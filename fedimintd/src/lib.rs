@@ -20,7 +20,7 @@ use bitcoin::Network;
 use clap::{ArgGroup, CommandFactory, FromArgMatches, Parser};
 use fedimint_core::db::Database;
 use fedimint_core::envs::{
-    FM_ENABLE_MODULE_ESCROW_ENV, FM_IROH_DNS_ENV, FM_IROH_RELAY_ENV, FM_USE_UNKNOWN_MODULE_ENV,
+    FM_IROH_DNS_ENV, FM_IROH_RELAY_ENV, FM_USE_UNKNOWN_MODULE_ENV,
     is_env_var_set,
 };
 use fedimint_core::module::registry::ModuleRegistry;
@@ -507,12 +507,10 @@ pub fn default_modules() -> ServerModuleInitRegistry {
 
     server_gens.attach(LightningInit);
     server_gens.attach(fedimint_lnv2_server::LightningInit);
+    server_gens.attach(fedimint_escrow_server::EscrowInit);
 
     if !is_env_var_set(FM_DISABLE_META_MODULE_ENV) {
         server_gens.attach(MetaInit);
-    }
-    if is_env_var_set(FM_ENABLE_MODULE_ESCROW_ENV) {
-        server_gens.attach(fedimint_escrow_server::EscrowInit);
     }
 
     if is_env_var_set(FM_USE_UNKNOWN_MODULE_ENV) {
