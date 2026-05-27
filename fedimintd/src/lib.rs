@@ -20,8 +20,7 @@ use bitcoin::Network;
 use clap::{ArgGroup, CommandFactory, FromArgMatches, Parser};
 use fedimint_core::db::Database;
 use fedimint_core::envs::{
-    FM_IROH_DNS_ENV, FM_IROH_RELAY_ENV, FM_USE_UNKNOWN_MODULE_ENV,
-    is_env_var_set,
+    FM_IROH_DNS_ENV, FM_IROH_RELAY_ENV, FM_USE_UNKNOWN_MODULE_ENV, is_env_var_set,
 };
 use fedimint_core::module::registry::ModuleRegistry;
 use fedimint_core::module::{ApiAuth, CORE_CONSENSUS_VERSION};
