@@ -3496,6 +3496,7 @@ dependencies = [
  "strum 0.27.1",
  "strum_macros 0.27.1",
  "thiserror 2.0.18",
+ "tracing",
 ]
 
 [[package]]
@@ -3537,6 +3538,7 @@ dependencies = [
  "fedimint-client-module",
  "fedimint-core",
  "fedimint-escrow-common",
+ "fedimint-logging",
  "fedimint-server-core",
  "futures",
  "hex",
@@ -3569,12 +3571,14 @@ dependencies = [
  "erased-serde",
  "fedimint-core",
  "fedimint-escrow-common",
+ "fedimint-logging",
  "fedimint-server-core",
  "futures",
  "serde",
  "strum 0.27.1",
  "strum_macros 0.27.1",
  "thiserror 2.0.18",
+ "tracing",
 ]
 
 [[package]]
