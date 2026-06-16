@@ -18,6 +18,7 @@ use fedimint_core::task::{MaybeSend, MaybeSync};
 use fedimint_core::util::{BoxFuture, BoxStream};
 use fedimint_core::{Amount, TieredCounts, impl_db_record};
 use fedimint_derive_secret::{ChildId, DerivableSecret};
+use fedimint_escrow_client::{EscrowClientInit, EscrowClientModule};
 use fedimint_ln_client::{LightningClientInit, LightningClientModule};
 use fedimint_meta_client::{MetaClientInit, MetaClientModule};
 use fedimint_mint_client::{MintClientInit, MintClientModule, OOBNotes};
@@ -189,6 +190,7 @@ impl RpcGlobalState {
         builder.with_module(MintClientInit);
         builder.with_module(LightningClientInit::default());
         builder.with_module(WalletClientInit(None));
+        builder.with_module(EscrowClientInit);
         builder.with_module(MetaClientInit);
         Ok(builder)
     }
@@ -365,6 +367,15 @@ impl RpcGlobalState {
                         .get_first_module::<WalletClientModule>()?
                         .inner();
                     let mut stream = wallet.handle_rpc(method, payload).await;
+                    while let Some(item) = stream.next().await {
+                        yield item?;
+                    }
+                }
+                "escrow" => {
+                    let escrow = client
+                        .get_first_module::<EscrowClientModule>()?
+                        .inner();
+                    let mut stream = escrow.handle_rpc(method, payload).await;
                     while let Some(item) = stream.next().await {
                         yield item?;
                     }

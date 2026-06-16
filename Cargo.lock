@@ -3206,6 +3206,7 @@ dependencies = [
  "fedimint-connectors",
  "fedimint-core",
  "fedimint-derive-secret",
+ "fedimint-escrow-client",
  "fedimint-ln-client",
  "fedimint-lnurl",
  "fedimint-meta-client",
