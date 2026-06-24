@@ -3555,7 +3555,6 @@ dependencies = [
  "strum 0.27.1",
  "strum_macros 0.28.0",
  "thiserror 2.0.21",
- "tracing",
 ]
 
 [[package]]
@@ -3606,6 +3605,7 @@ dependencies = [
  "strum 0.27.1",
  "strum_macros 0.27.1",
  "thiserror 2.0.18",
+ "tracing",
 ]
 
 [[package]]
