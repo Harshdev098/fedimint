@@ -1228,6 +1228,11 @@ impl ClientModule for MintClientModule {
                     for await state in stream {
                         yield serde_json::to_value(state?)?;
                     }
+                },
+                "decode_notes" => {
+                    let req: DecodeNotesRequest = serde_json::from_value(request)?;
+                    let result = self.decode_notes(&req.oob_notes)?;
+                    yield serde_json::to_value(result)?;
                 }
                 _ => {
                     Err(anyhow::format_err!("Unknown method: {method}"))?;
@@ -1273,6 +1278,11 @@ struct ValidateNotesRequest {
 }
 
 #[derive(Deserialize)]
+struct DecodeNotesRequest {
+    oob_notes: OOBNotes,
+}
+
+#[derive(Deserialize)]
 struct TryCancelSpendNotesRequest {
     operation_id: OperationId,
 }
@@ -1306,6 +1316,16 @@ pub enum ReissueExternalNotesError {
     WrongFederationId,
     #[error("We already reissued these notes")]
     AlreadyReissued,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DecodedNotes {
+    /// Total amount in msats
+    pub total_amount_msat: u64,
+    /// Nonces grouped by denomination
+    pub notes: BTreeMap<String, Vec<String>>,
+    /// Federation ID prefix
+    pub federation_id_prefix: String,
 }
 
 impl MintClientModule {
@@ -1442,6 +1462,29 @@ impl MintClientModule {
                 state_machines: state_generator,
             }],
         )
+    }
+
+    pub fn decode_notes(&self, oob_notes: &OOBNotes) -> anyhow::Result<DecodedNotes> {
+        let notes = oob_notes.notes();
+        let mut notes_map: BTreeMap<String, Vec<String>> = BTreeMap::new();
+
+        for (amount, spendable_note) in notes.iter_items() {
+            let nonce_hex = spendable_note
+                .nonce()
+                .consensus_encode_to_vec()
+                .encode_hex::<String>();
+
+            notes_map
+                .entry(amount.msats.to_string())
+                .or_default()
+                .push(nonce_hex);
+        }
+
+        Ok(DecodedNotes {
+            total_amount_msat: notes.total_amount().msats,
+            notes: notes_map,
+            federation_id_prefix: oob_notes.federation_id_prefix().to_string(),
+        })
     }
 
     /// Returns the number of held e-cash notes per denomination
