@@ -3537,6 +3537,7 @@ dependencies = [
  "fedimint-api-client",
  "fedimint-client-module",
  "fedimint-core",
+ "fedimint-derive-secret",
  "fedimint-escrow-common",
  "fedimint-logging",
  "fedimint-server-core",
