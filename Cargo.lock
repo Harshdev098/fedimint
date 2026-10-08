@@ -3682,6 +3682,7 @@ dependencies = [
 name = "fedimint-escrow-tests"
 version = "0.13.0-alpha"
 dependencies = [
+ "anyhow",
  "fedimint-client",
  "fedimint-core",
  "fedimint-dummy-client",
